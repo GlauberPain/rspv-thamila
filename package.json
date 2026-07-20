@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build && node -e \"require('fs').writeFileSync('dist/CNAME','rspv.thamilaoliveiradasilva.med.br\\nrspv-thamila.gandrei.dev.br\\n')\"",
+    "predeploy": "npm run build && node -e \"require('fs').writeFileSync('dist/CNAME','rspv-thamila.gandrei.dev.br\\nrspv.thamilaoliveiradasilva.med.br')\"",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
