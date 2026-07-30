@@ -963,6 +963,7 @@ function RSVPSection({
 					</p>
 				</div>
 
+				<style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 				<form onSubmit={handleSubmit} noValidate>
 					{/* Guest fields */}
 					<div
@@ -1129,6 +1130,13 @@ function RSVPSection({
 					>
 						{submitting ? "Confirmando..." : "Confirmar presença"}
 					</button>
+
+					{submitting && (
+						<div role="status" style={{ marginTop: 16, padding: "14px 16px", borderRadius: 12, background: C.pinkSoft, border: `1px solid ${C.pinkLight}`, color: C.red, fontFamily: "system-ui, sans-serif", fontSize: 13, textAlign: "center" }}>
+							<span aria-hidden="true" style={{ display: "inline-block", marginRight: 8, animation: "spin 0.8s linear infinite" }}>◌</span>
+							Enviando sua confirmação, aguarde um instante...
+						</div>
+					)}
 
 					<p
 						style={{
@@ -1590,6 +1598,7 @@ export default function App() {
 			) : appState === "rsvp" ? (
 				<RSVPSection onSuccess={handleRsvpSuccess} />
 			) : null}
+			<GiftSection />
 			<Footer />
 		</div>
 	);
