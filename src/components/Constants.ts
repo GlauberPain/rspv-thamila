@@ -17,4 +17,14 @@ export interface Companion {
   name: string;
 }
 
-export type AppState = "rsvp" | "success";
+export type AppState = "checking" | "rsvp" | "confirmed" | "success";
+
+/** Data e hora do evento, centralizadas para facilitar futuras alterações. */
+export const EVENT_DATE = new Date("2026-11-20T20:00:00-03:00");
+
+/** Chave utilizada para persistir o UUID da confirmação no localStorage. */
+export const RSVP_UUID_STORAGE_KEY = "rsvp_uuid";
+
+/** Número de WhatsApp (com DDI e DDD) para contato com a Thamila. */
+export const WHATSAPP_NUMBER =
+  import.meta.env.VITE_WHATSAPP_NUMBER ?? "";

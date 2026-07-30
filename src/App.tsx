@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import perfilImage from "./assets/centro.svg";
 import esquerdaImage from "./assets/esquerda.svg";
 import direitaImage from "./assets/direita.svg";
 import { C } from "./components/Constants";
 import type { Companion, AppState } from "./components/Constants";
 import { Heart, Sparkle, GradCap, Stethoscope, Caduceus, LaurelLeft, LaurelRight, DiplomaIcon } from "./components/Icons";
+import { Countdown } from "./components/Countdown";
+import { ConfirmationCard } from "./components/ConfirmationCard";
 import { capitalizeWords, maskPhone } from "./utils";
 import { isEmailServiceConfigured, sendConfirmationEmail } from "./emailService";
+import { createConfirmation, getConfirmationByUuid } from "./services/rsvpService";
+import { clearRsvpUuid, getSavedRsvpUuid, saveRsvpUuid } from "./services/rsvpStorage";
+import type { ConfirmationResponse } from "./types/rsvp";
 
 type EmailStatus = "idle" | "sending" | "success" | "error";
 
@@ -436,6 +441,9 @@ function HeroSection() {
 						</h1>
 					</div>
 
+					{/* Countdown */}
+					<Countdown />
+
 					{/* Subtitle */}
 					<p
 						style={{
@@ -723,6 +731,7 @@ function RSVPSection({
 		guestName: string;
 		companions: string[];
 		email: string;
+		uuid: string;
 	}) => void;
 }) {
 	const [name, setName] = useState("");
@@ -765,15 +774,11 @@ function RSVPSection({
 		};
 
 		try {
-			await fetch(import.meta.env.VITE_GOOGLE_APPS_SCRIPT_URL, {
-				method: "POST",
-				mode: "no-cors",
-				body: JSON.stringify(payload),
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
-			onSuccess({ guestName, companions: guestCompanions, email });
+			const result = await createConfirmation(payload);
+			if (result.uuid) {
+				saveRsvpUuid(result.uuid);
+			}
+			onSuccess({ guestName, companions: guestCompanions, email, uuid: result.uuid });
 		} catch (err) {
 			console.error(err);
 			alert("Erro ao confirmar presença. Tente novamente.");
@@ -1363,9 +1368,44 @@ function Footer() {
 // ─── App root ─────────────────────────────────────────────────────────────────
 
 export default function App() {
-	const [appState, setAppState] = useState<AppState>("rsvp");
+	const [appState, setAppState] = useState<AppState>(() =>
+		getSavedRsvpUuid() ? "checking" : "rsvp",
+	);
 	const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
 	const [hasEmail, setHasEmail] = useState(false);
+	const [confirmation, setConfirmation] = useState<ConfirmationResponse | null>(null);
+
+	useEffect(() => {
+		const savedUuid = getSavedRsvpUuid();
+
+		if (!savedUuid) {
+			return;
+		}
+
+		let cancelled = false;
+
+		getConfirmationByUuid(savedUuid)
+			.then((response) => {
+				if (cancelled) return;
+
+				if (!response.found) {
+					clearRsvpUuid();
+					setAppState("rsvp");
+					return;
+				}
+
+				setConfirmation(response);
+				setAppState("confirmed");
+			})
+			.catch((err) => {
+				console.error(err);
+				if (!cancelled) setAppState("rsvp");
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, []);
 
 	async function handleRsvpSuccess({
 										 guestName,
@@ -1375,6 +1415,7 @@ export default function App() {
 		guestName: string;
 		companions: string[];
 		email: string;
+		uuid: string;
 	}) {
 		setAppState("success");
 
@@ -1416,7 +1457,14 @@ export default function App() {
 		<div>
 			<HeroSection />
 			<EventSection />
-			<RSVPSection onSuccess={handleRsvpSuccess} />
+			{appState === "confirmed" && confirmation ? (
+				<ConfirmationCard
+					data={confirmation}
+					onOk={() => setAppState("rsvp")}
+				/>
+			) : appState === "rsvp" ? (
+				<RSVPSection onSuccess={handleRsvpSuccess} />
+			) : null}
 			<Footer />
 		</div>
 	);
