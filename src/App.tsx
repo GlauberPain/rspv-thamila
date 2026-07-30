@@ -568,7 +568,7 @@ function EventSection() {
 			emoji: "📅",
 			label: "Data",
 			value: "20 de novembro de 2026",
-			sub: "Sábado",
+			sub: "Sexta",
 		},
 		{
 			emoji: "🕖",
