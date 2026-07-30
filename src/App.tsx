@@ -722,6 +722,123 @@ function EventSection() {
 	);
 }
 
+// ─── Gift suggestions section ────────────────────────────────────────────────
+
+function GiftSection() {
+	const gifts = [
+		"Caneta gravada, bem médica chic",
+		"Carimbo (para o dia em que o CRM positivar hahaha)",
+		"Bolsa e lancheira para o plantão",
+		"Garrafa de água",
+		"Jalecos e scrubs novos",
+		"Agenda ou planner 2027",
+		"Luminária",
+		"Brincos ou colares bem mediciner 😘",
+		"Maquiagens para a médica de vocês ficar ainda mais bonita 😂",
+		"Crocs e pins",
+		"Uma foto nossa no seu Instagram 📸",
+		"Uma cartinha escrita à mão que me faça chorar de felicidade 💖",
+	];
+
+	return (
+		<section
+			style={{
+				padding: "clamp(60px, 8vw, 88px) clamp(20px, 6vw, 72px)",
+				background: C.white,
+				position: "relative",
+				overflow: "hidden",
+			}}
+		>
+			<div style={{ maxWidth: 920, margin: "0 auto" }}>
+				<div style={{ textAlign: "center", marginBottom: 36 }}>
+					<div style={{ fontSize: 28, marginBottom: 12 }}>🎁✨</div>
+					<h2
+						style={{
+							fontFamily: "'Bree Serif', serif",
+							fontSize: "clamp(1.5rem, 3.5vw, 2.1rem)",
+							color: C.black,
+							marginBottom: 12,
+						}}
+					>
+						Mimos para a futura médica
+					</h2>
+					<p
+						style={{
+							fontFamily: "system-ui, sans-serif",
+							fontSize: 15,
+							lineHeight: 1.7,
+							color: C.muted1,
+							maxWidth: 680,
+							margin: "0 auto",
+						}}
+					>
+						Você fez parte dessa história e jornada. Eu, sua formanda e futura
+						médica, vou ficar muito feliz com sua presença nessa festa! E, se
+						quiser me ver ainda mais feliz, pode me presentear com um mimo ✨🤩
+					</p>
+				</div>
+
+				<div
+					style={{
+						display: "grid",
+						gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+						gap: 12,
+						background: C.pinkSoft,
+						border: `1px solid ${C.pinkLight}`,
+						borderRadius: 20,
+						padding: "24px clamp(18px, 4vw, 36px)",
+					}}
+				>
+					{gifts.map((gift) => (
+						<div
+							key={gift}
+							style={{
+								display: "flex",
+								alignItems: "flex-start",
+								gap: 10,
+								fontFamily: "system-ui, sans-serif",
+								fontSize: 14,
+								lineHeight: 1.45,
+								color: C.black,
+								padding: "8px 0",
+							}}
+						>
+							<span aria-hidden="true" style={{ color: C.red, fontSize: 16 }}>
+								♥
+							</span>
+							<span>{gift}</span>
+						</div>
+					))}
+					<div
+						style={{
+							gridColumn: "1 / -1",
+							textAlign: "center",
+							fontFamily: "'Bree Serif', serif",
+							fontSize: 16,
+							color: C.red,
+							paddingTop: 12,
+						}}
+					>
+						Ou qualquer coisa que tocar seu coração 🥰
+					</div>
+				</div>
+
+				<p
+					style={{
+						textAlign: "center",
+						fontFamily: "'Bree Serif', serif",
+						fontSize: 17,
+						color: C.red,
+						marginTop: 28,
+					}}
+				>
+					Te vejo lá! 💖
+				</p>
+			</div>
+		</section>
+	);
+}
+
 // ─── RSVP form section ────────────────────────────────────────────────────────
 
 function RSVPSection({
@@ -1457,6 +1574,7 @@ export default function App() {
 		<div>
 			<HeroSection />
 			<EventSection />
+			<GiftSection />
 			{appState === "confirmed" && confirmation ? (
 				<ConfirmationCard
 					data={confirmation}
