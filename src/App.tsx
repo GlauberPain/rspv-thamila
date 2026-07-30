@@ -582,6 +582,12 @@ function EventSection() {
 			value: "Canto do Vinho",
 			sub: "R. Monte Alegre, 2655 - Vila Planalto",
 		},
+		{
+			emoji: "👗",
+			label: "Traje",
+			value: "Social",
+			sub: "Vista-se para celebrar!",
+		},
 	];
 
 	return (
@@ -609,7 +615,7 @@ function EventSection() {
 				}}
 			/>
 
-			<div style={{ maxWidth: 920, margin: "0 auto" }}>
+			<div style={{ maxWidth: 1100, margin: "0 auto" }}>
 				{/* Header */}
 				<div style={{ textAlign: "center", marginBottom: 48 }}>
 					<div
@@ -649,7 +655,7 @@ function EventSection() {
 				<div
 					style={{
 						display: "grid",
-						gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+						gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
 						gap: 20,
 					}}
 				>
@@ -1350,6 +1356,8 @@ function SuccessPage({
 					</p>
 				</div>
 
+				<GiftSection />
+
 				<style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
 				{/* Email feedback + botão de voltar, lado a lado */}
@@ -1574,7 +1582,6 @@ export default function App() {
 		<div>
 			<HeroSection />
 			<EventSection />
-			<GiftSection />
 			{appState === "confirmed" && confirmation ? (
 				<ConfirmationCard
 					data={confirmation}

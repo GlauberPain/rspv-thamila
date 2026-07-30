@@ -40,6 +40,21 @@ function GuestRow({ nome, status }: { nome: string; status: ConfirmationResponse
 }
 
 export function ConfirmationCard({ data, onOk }: { data: ConfirmationResponse; onOk: () => void }) {
+	const gifts = [
+		"Caneta gravada, bem médica chic",
+		"Carimbo (para o dia em que o CRM positivar hahaha)",
+		"Bolsa e lancheira para o plantão",
+		"Garrafa de água",
+		"Jalecos e scrubs novos",
+		"Agenda ou planner 2027",
+		"Luminária",
+		"Brincos ou colares bem mediciner 😘",
+		"Maquiagens para a médica de vocês ficar ainda mais bonita 😂",
+		"Crocs e pins",
+		"Uma foto nossa no seu Instagram 📸",
+		"Uma cartinha escrita à mão que me faça chorar de felicidade 💖",
+	];
+
 	return (
 		<section
 			style={{
@@ -144,6 +159,25 @@ export function ConfirmationCard({ data, onOk }: { data: ConfirmationResponse; o
 				>
 					{data.message}
 				</p>
+
+				<div style={{ background: C.pinkSoft, border: `2px solid ${C.pinkLight}`, borderRadius: 16, padding: "24px 22px", marginBottom: 32 }}>
+					<h3 style={{ fontFamily: "'Bree Serif', serif", fontSize: 20, color: C.red, textAlign: "center", marginBottom: 16 }}>
+						🎁 Mimos para a futura médica ✨
+					</h3>
+					<p style={{ fontFamily: "system-ui, sans-serif", fontSize: 14, lineHeight: 1.6, color: C.muted1, textAlign: "center", marginBottom: 16 }}>
+						Sua presença já é o maior presente! Mas, se quiser me mimar, aqui vão algumas ideias:
+					</p>
+					<div style={{ display: "grid", gap: 8 }}>
+						{gifts.map((gift) => (
+							<div key={gift} style={{ display: "flex", gap: 8, fontFamily: "system-ui, sans-serif", fontSize: 13, lineHeight: 1.45, color: C.black }}>
+								<span aria-hidden="true" style={{ color: C.red }}>♥</span><span>{gift}</span>
+							</div>
+						))}
+					</div>
+					<p style={{ fontFamily: "'Bree Serif', serif", fontSize: 15, color: C.red, textAlign: "center", marginTop: 16 }}>
+						Ou qualquer coisa que tocar seu coração 🥰
+					</p>
+				</div>
 
 				{/* Buttons */}
 				<div
