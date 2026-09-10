@@ -44,6 +44,31 @@ O projeto é organizado de forma modular em `src/components/`:
 - **`styles/`**:
     - `theme.ts`: Centralização de cores e fontes para o design system.
 
+## 📧 Email de Confirmação (sem backend)
+
+Os campos de email e telefone do formulário são **opcionais**. Se o convidado preencher o email, é enviado automaticamente um email de confirmação — uma réplica do convite em HTML/CSS (`src/emailTemplate.ts`) com o nome principal e a lista de acompanhantes — usando a API do [EmailJS](https://www.emailjs.com/), que permite disparar emails diretamente do navegador, sem precisar manter um servidor de backend.
+
+Se o email não for preenchido, nenhuma tentativa de envio é feita. Da mesma forma, se as credenciais do EmailJS não estiverem configuradas no `.env`, o envio é ignorado silenciosamente — nenhum erro é exibido ao usuário nem lançado em produção, apenas um aviso é registrado no console do navegador (`console.log`).
+
+### Configuração
+1. Crie uma conta gratuita em [emailjs.com](https://www.emailjs.com/).
+2. Em **Email Services**, conecte o provedor desejado (Gmail, Outlook, SMTP, etc.) e anote o `Service ID`.
+3. Em **Email Templates**, crie um template com os seguintes campos (variáveis do EmailJS):
+   - `{{to_email}}` — destinatário
+   - `{{to_name}}` — nome do convidado
+   - `{{{message_html}}}` — conteúdo do email (use chaves triplas para renderizar HTML puro)
+   - `{{companions_text}}` — lista de acompanhantes em texto (opcional)
+4. Em **Account > Security**, habilite a opção **"Allow EmailJS API for non-browser applications"** (necessária pois o envio é feito via `fetch` direto na API REST).
+5. Copie o `Public Key` (Account) e preencha o arquivo `.env` (veja `.env.example`):
+   ```
+   VITE_EMAILJS_SERVICE_ID=seu_service_id
+   VITE_EMAILJS_TEMPLATE_ID=seu_template_id
+   VITE_EMAILJS_PUBLIC_KEY=sua_public_key
+   ```
+
+### Feedback visual
+Após a confirmação, a tela de sucesso exibe o status do envio do email: "Enviando o convite por email...", "✅ Convite enviado para seu email!" ou "⚠️ Não foi possível enviar o email do convite." (caso ocorra algum erro, a confirmação de presença em si não é afetada).
+
 ## ⚙️ Como Executar
 
 ### Pré-requisitos

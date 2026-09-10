@@ -8,9 +8,12 @@ import { Heart, Sparkle, GradCap, Stethoscope, Caduceus, LaurelLeft, LaurelRight
 import { Countdown } from "./components/Countdown";
 import { ConfirmationCard } from "./components/ConfirmationCard";
 import { capitalizeWords, maskPhone } from "./utils";
+import { isEmailServiceConfigured, sendConfirmationEmail } from "./emailService";
 import { createConfirmation, getConfirmationByUuid } from "./services/rsvpService";
 import { clearRsvpUuid, getSavedRsvpUuid, saveRsvpUuid } from "./services/rsvpStorage";
 import type { ConfirmationResponse } from "./types/rsvp";
+
+type EmailStatus = "idle" | "sending" | "success" | "error";
 
 // ─── Photo placeholder ────────────────────────────────────────────────────────
 
@@ -845,11 +848,12 @@ function GiftSection() {
 // ─── RSVP form section ────────────────────────────────────────────────────────
 
 function RSVPSection({
-	onSuccess,
-}: {
+						 onSuccess,
+					 }: {
 	onSuccess: (data: {
 		guestName: string;
 		companions: string[];
+		email: string;
 		uuid: string;
 	}) => void;
 }) {
@@ -889,6 +893,7 @@ function RSVPSection({
 			email,
 			telefone: maskPhone(phone),
 			acompanhantes: guestCompanions,
+			enviarEmail: !!email,
 		};
 
 		try {
@@ -896,7 +901,7 @@ function RSVPSection({
 			if (result.uuid) {
 				saveRsvpUuid(result.uuid);
 			}
-			onSuccess({ guestName, companions: guestCompanions, uuid: result.uuid });
+			onSuccess({ guestName, companions: guestCompanions, email, uuid: result.uuid });
 		} catch (err) {
 			console.error(err);
 			alert("Erro ao confirmar presença. Tente novamente.");
@@ -1089,7 +1094,7 @@ function RSVPSection({
 									color: C.pink,
 								}}
 							>
-								+
+                +
 							</span>
 							Adicionar acompanhante
 						</button>
@@ -1154,9 +1159,13 @@ function RSVPSection({
 // ─── Success page ─────────────────────────────────────────────────────────────
 
 function SuccessPage({
-	onBack,
-}: {
+						 onBack,
+						 emailStatus,
+						 hasEmail,
+					 }: {
 	onBack: () => void;
+	emailStatus: EmailStatus;
+	hasEmail: boolean;
 }) {
 	const [hovered, setHovered] = useState(false);
 	return (
@@ -1357,7 +1366,9 @@ function SuccessPage({
 
 				<GiftSection />
 
-				{/* Botão de voltar */}
+				<style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+				{/* Email feedback + botão de voltar, lado a lado */}
 				<div
 					style={{
 						display: "flex",
@@ -1367,6 +1378,60 @@ function SuccessPage({
 						gap: 4
 					}}
 				>
+					{hasEmail && (
+						<div
+							style={{
+								display: "inline-flex",
+								alignItems: "center",
+								justifyContent: "center",
+								boxSizing: "border-box",
+								minHeight: 52,
+								padding: 16,
+								borderRadius: 12,
+								fontFamily: "system-ui, sans-serif",
+								fontSize: 14,
+								...(emailStatus === "sending" && {
+									background: C.pinkSoft,
+									color: C.red,
+									border: `2px solid ${C.pinkLight}`,
+								}),
+								...(emailStatus === "success" && {
+									background: "#E7F5EE",
+									color: C.sage,
+									border: `2px solid ${C.sage}`,
+								}),
+								...(emailStatus === "error" && {
+									background: C.blush,
+									color: C.red,
+									border: `2px solid ${C.red}`,
+								}),
+							}}
+						>
+							{emailStatus === "sending" && (
+								<>
+									<span
+										aria-hidden="true"
+										style={{
+											width: 14,
+											height: 14,
+											borderRadius: "50%",
+											border: `2px solid ${C.red}`,
+											borderTopColor: "transparent",
+											animation: "spin 0.8s linear infinite",
+										}}
+									/>
+									Enviando o convite por email...
+								</>
+							)}
+							{emailStatus === "success" && (
+								<>✅ Convite enviado para seu email!</>
+							)}
+							{emailStatus === "error" && (
+								<>⚠️ Não foi possível enviar o email do convite.</>
+							)}
+						</div>
+					)}
+
 					<button
 						onClick={onBack}
 						onMouseEnter={() => setHovered(true)}
@@ -1439,6 +1504,8 @@ export default function App() {
 	const [appState, setAppState] = useState<AppState>(() =>
 		getSavedRsvpUuid() ? "checking" : "rsvp",
 	);
+	const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
+	const [hasEmail, setHasEmail] = useState(false);
 	const [confirmation, setConfirmation] = useState<ConfirmationResponse | null>(null);
 
 	useEffect(() => {
@@ -1473,14 +1540,48 @@ export default function App() {
 		};
 	}, []);
 
-	function handleRsvpSuccess() {
+	async function handleRsvpSuccess({
+										 guestName,
+										 companions,
+										 email,
+									 }: {
+		guestName: string;
+		companions: string[];
+		email: string;
+		uuid: string;
+	}) {
 		setAppState("success");
+
+		if (!email) {
+			setHasEmail(false);
+			return;
+		}
+
+		if (!isEmailServiceConfigured()) {
+			console.log(
+				"Envio de email de confirmação ignorado: configure as credenciais do EmailJS no .env.",
+			);
+			setHasEmail(false);
+			return;
+		}
+
+		setHasEmail(true);
+		setEmailStatus("sending");
+		try {
+			await sendConfirmationEmail({ toEmail: email, guestName, companions });
+			setEmailStatus("success");
+		} catch (err) {
+			console.error(err);
+			setEmailStatus("error");
+		}
 	}
 
 	if (appState === "success") {
 		return (
 			<SuccessPage
 				onBack={() => setAppState("rsvp")}
+				emailStatus={emailStatus}
+				hasEmail={hasEmail}
 			/>
 		);
 	}
