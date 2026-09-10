@@ -21,7 +21,6 @@ export interface CreateConfirmationPayload {
 	email: string;
 	telefone: string;
 	acompanhantes: string[];
-	enviarEmail: boolean;
 }
 
 export interface CreateConfirmationResponse {
